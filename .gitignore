@@ -1,2 +1,5 @@
 *.csv
 *.txt
+*.zip
+paths.py
+__pycache__

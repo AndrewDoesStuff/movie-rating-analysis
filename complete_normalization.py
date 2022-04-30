@@ -26,7 +26,6 @@ def movielens_normalization(outputName="normalized_movielens.csv"):
     count = 0 
     genre_list = []
     rating_list = []
-    count = 0
     for i in ratings["movieId"]:
         genre = movies[movies['movieId'] == i] # genre! 
         rating = ratings['rating'][count] # rating!
@@ -34,8 +33,6 @@ def movielens_normalization(outputName="normalized_movielens.csv"):
         genre_list.append(genre)
         rating_list.append(rating)
         count += 1
-        if count > 1000000:
-            break
     normalized_dataframe = pd.DataFrame(list(zip(genre_list,rating_list)), columns=["genre", "rating"])
     normalized_dataframe.to_csv(outputName,header=False, index=False)
       

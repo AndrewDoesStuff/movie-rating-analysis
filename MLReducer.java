@@ -6,6 +6,10 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.NullWritable;
+
 /* 
  * To define a reduce function for your MapReduce job, subclass 
  * the Reducer class and override the reduce method.
@@ -28,6 +32,27 @@ public class MLReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
   @Override
 	public void reduce(Text key, Iterable<IntWritable> values, Context context)
 			throws IOException, InterruptedException {
+
+        double avgScore = 0.0;
+	      int total = 0;
+	      int curScore;
 	  
+	      for (IntWritable score:values){
+		      curScore = score.get();
+		      avgScore += (double)curScore;
+		      total += 1;
+	      }
+	  
+	      avgScore = avgScore / total;
+	  
+	      String genre = key.toString();
+	      Put put = new Put(Bytes.toBytes(genre));
+	      byte[] col = Bytes.toBytes("Score");
+	      byte[] qual = Bytes.toBytes("Average");
+	      byte[] scoreVal = Bytes.toBytes(avgScore);
+	  
+	      put.addImmutable(col, qual, scoreVal);
+	      context.write(null,  put);
+
 	}
 }

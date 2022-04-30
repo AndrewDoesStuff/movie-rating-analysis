@@ -35,7 +35,7 @@ public class MLMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 	      String genre = "";
 	      int score;
 	  
-	      String[] vals = line.split("\\W");
+	      String[] vals = line.split(",");
 	      genre = vals[0];
 	      score = Integer.parseInt(vals[1]);
 	  

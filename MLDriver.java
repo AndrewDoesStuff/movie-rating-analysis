@@ -11,31 +11,20 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
-  
-/* 
- * MapReduce jobs are typically implemented by using a driver class.
- * The purpose of a driver class is to set up the configuration for the
- * MapReduce job and to run the job.
- * Typical requirements for a driver class include configuring the input
- * and output data formats, configuring the map and reduce classes,
- * and specifying intermediate data formats.
- * 
- * The following is the code for the driver class:
- */
+
 public class MLDriver extends Configured implements Tool {
 
   public static void main(String[] args) throws Exception {
     
     int exitCode = ToolRunner.run(new Configuration(), new MLDriver(), args);
     System.exit(exitCode);
+
   }
 
   public int run(String[] args) throws Exception {
 
     /*
-     * The expected command-line arguments are the paths containing
-     * input and output data. Terminate the job if the number of
-     * command-line arguments is not exactly 2.
+     * Checks for proper arguments and returns correct usage.
      */
     if (args.length != 2) {
       System.out.printf(
@@ -58,8 +47,9 @@ public class MLDriver extends Configured implements Tool {
     job.setJobName("Movie Rating Analyis");
     
     /*
-     * Specify the paths to the input and output data based on the
-     * command-line arguments.
+     * Input data will be read via file path from command line inputs.
+     * This job uses TableOutputFormat rather than a FileOutput, so there is no need
+     * to specify FileOutputFormat.
      */
     FileInputFormat.setInputPaths(job, new Path(args[0]));
 
@@ -70,35 +60,24 @@ public class MLDriver extends Configured implements Tool {
     job.setReducerClass(MLReducer.class);
 
     /*
-     * For the word count application, the input file and output 
-     * files are in text format - the default format.
-     * 
-     * In text format files, each record is a line delineated by a 
-     * by a line terminator.
-     * 
-     * When you use other input formats, you must call the 
-     * SetInputFormatClass method. When you use other 
-     * output formats, you must call the setOutputFormatClass method.
+     * setOutputFormatClass needs to be called since we are using a table
+     * output rather than the default TextOutputFormat.
      */
-      
-    /*
-     * For the word count application, the mapper's output keys and
-     * values have the same data types as the reducer's output keys 
-     * and values: Text and IntWritable.
-     * 
-     * When they are not the same data types, you must call the 
-     * setMapOutputKeyClass and setMapOutputValueClass 
-     * methods.
-     */
-
-    /*
-     * Specify the job's output key and value classes.
-     */
-
     job.setOutputFormatClass(TableOutputFormat.class)
+
+    /*
+     * setMapOutputKeyClass and setMapOutputValueClass must be called
+     * since the output classes for the mapper will be different from
+     * the reducer.
+     * The mapper will output a (Text, DoubleWritable) pair, while the
+     * reducer will output to an HBase table.
+     */
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(DoubleWritable.class);
 
+    /*
+     * Output table name is specified using command line arguments.
+     */
     job.getConfiguration().set(TableOutputFormat.OUTPUT_TABLE, args[1]);
 
     /*

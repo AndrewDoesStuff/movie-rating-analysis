@@ -1,5 +1,5 @@
 import pandas as pd
-from paths import t_path, m_m_path, m_r_path, debug as p
+from paths import t_path, m_m_path, m_r_path
 
 
 
@@ -18,8 +18,8 @@ def tomatoes_normalization(outputName="normalized_tomatoes.csv"):
 
 
 def movielens_normalization(outputName="normalized_movielens.csv"):
-    movies = pd.read_csv(p + m_m_path)
-    ratings = pd.read_csv(p + m_r_path)
+    movies = pd.read_csv(m_m_path)
+    ratings = pd.read_csv(m_r_path)
     movies['genres'] = movies['genres'].str.split("|").str[0]
     movies = movies.drop('title', axis=1)
     ratings = ratings.drop(['timestamp', 'userId'], axis=1)

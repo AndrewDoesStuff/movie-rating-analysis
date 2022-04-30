@@ -1,6 +1,7 @@
 package project;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -29,7 +30,7 @@ public class MLDriver extends Configured implements Tool {
     if (args.length != 2) {
       System.out.printf(
           "Usage: MLDriver <input dir> <output dir>\n");
-      System.exit(-1);
+      return -1;
     }
 
     /*
@@ -63,7 +64,7 @@ public class MLDriver extends Configured implements Tool {
      * setOutputFormatClass needs to be called since we are using a table
      * output rather than the default TextOutputFormat.
      */
-    job.setOutputFormatClass(TableOutputFormat.class)
+    job.setOutputFormatClass(TableOutputFormat.class);
 
     /*
      * setMapOutputKeyClass and setMapOutputValueClass must be called
@@ -85,6 +86,6 @@ public class MLDriver extends Configured implements Tool {
      * If it finishes successfully, return 0. If not, return 1.
      */
     boolean success = job.waitForCompletion(true);
-    System.exit(success ? 0 : 1);
+    return success ? 0 : 1;
   }
 }

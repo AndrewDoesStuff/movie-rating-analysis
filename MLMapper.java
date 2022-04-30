@@ -31,5 +31,15 @@ public class MLMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
   public void map(LongWritable key, Text value, Context context)
       throws IOException, InterruptedException {
 	  
+        String line = value.toString();
+	      String genre = "";
+	      int score;
+	  
+	      String[] vals = line.split(",");
+	      genre = vals[0];
+	      score = Integer.parseInt(vals[1]);
+	  
+	      context.write(new Text(genre), new IntWritable(score));
+
   }
 }

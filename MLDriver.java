@@ -4,10 +4,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
-
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
+  
 /* 
  * MapReduce jobs are typically implemented by using a driver class.
  * The purpose of a driver class is to set up the configuration for the
@@ -18,9 +22,15 @@ import org.apache.hadoop.mapreduce.Job;
  * 
  * The following is the code for the driver class:
  */
-public class MLDriver {
+public class MLDriver extends Configured implements Tool {
 
   public static void main(String[] args) throws Exception {
+    
+    int exitCode = ToolRunner.run(new Configuration(), new MLDriver(), args);
+    System.exit(exitCode);
+  }
+
+  public int run(String[] args) throws Exception {
 
     /*
      * The expected command-line arguments are the paths containing
@@ -45,13 +55,13 @@ public class MLDriver {
      * mapper and reducer tasks.
      */
     job.setJarByClass(MLDriver.class);
+    job.setJobName("Movie Rating Analyis");
     
     /*
      * Specify the paths to the input and output data based on the
      * command-line arguments.
      */
     FileInputFormat.setInputPaths(job, new Path(args[0]));
-    FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
     /*
      * Specify the mapper and reducer classes.
@@ -84,8 +94,12 @@ public class MLDriver {
     /*
      * Specify the job's output key and value classes.
      */
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(IntWritable.class);
+
+    job.setOutputFormatClass(TableOutputFormat.class)
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(DoubleWritable.class);
+
+    job.getConfiguration().set(TableOutputFormat.OUTPUT_TABLE, args[1]);
 
     /*
      * Start the MapReduce job and wait for it to finish.

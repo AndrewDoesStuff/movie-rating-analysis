@@ -3,6 +3,7 @@ package project;
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -20,7 +21,7 @@ import org.apache.hadoop.mapreduce.Mapper;
  *   type for the reducer)
  */
 
-public class MLMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+public class MLMapper extends Mapper<LongWritable, Text, Text, DoubleWritable> {
 
   /*
    * The map method runs once for each line of text in the input file.
@@ -31,15 +32,15 @@ public class MLMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
   public void map(LongWritable key, Text value, Context context)
       throws IOException, InterruptedException {
 	  
-        String line = value.toString();
-	      String genre = "";
-	      int score;
+	  String line = value.toString();
+	  String[] vals = line.split(",");
 	  
-	      String[] vals = line.split(",");
-	      genre = vals[0];
-	      score = Integer.parseInt(vals[1]);
+	  String genre = vals[0];
+	  String scoreStr = vals[1];
 	  
-	      context.write(new Text(genre), new IntWritable(score));
-
+	  double score = Double.parseDouble(scoreStr);
+	  
+	  context.write(new Text(genre), new DoubleWritable(score));
+	  
   }
 }
